@@ -1,18 +1,21 @@
-# Pkt początkowy, uczenia
+from sympy import Symbol, lambdify
+import matplotlib.pyplot as plt
+
 
 X0 = 0
 MAX_IT = 1000
 ALPHA = 0.01
 EPSILON = 0.001
 
-def funct(x):
-    return x**2 + 3 * x + 8
+x = Symbol("x")
+# Function
+f = x**2 + 3 * x + 8
+funct_der = f.diff(x)
+f = lambdify(x, f)
+funct_der = lambdify(x, funct_der)
 
-def funct_der(x):
-    return 2 * x + 3
 
-
-def gradient_descent(funct, funct_der, x0, max_it, alpha, epsilon):
+def gradient_descent(funct_der, x0, max_it, alpha, epsilon):
     i=0
     current_x = x0
     next_x = None
@@ -25,8 +28,8 @@ def gradient_descent(funct, funct_der, x0, max_it, alpha, epsilon):
         current_x = next_x
 
 
-print("Start")
-a = gradient_descent(funct, funct_der, X0, MAX_IT, ALPHA, EPSILON)
+
+a = gradient_descent(funct_der, X0, MAX_IT, ALPHA, EPSILON)
 print(a)
 
 
