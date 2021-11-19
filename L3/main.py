@@ -178,20 +178,20 @@ class Player:
                 return minmax(state, self.d, self.player, self.player)
 
 
-player1 = Player(1, False, 9, False)
-player2 = Player(-1, False, 9, False)
+player1 = Player(1, True, 1, False)
+player2 = Player(-1, False, 1, False)
 current_state = np.array([0 for _ in range(9)])
 current_player = player1
 i = 0
 
 while True:
     result = current_player.make_move(current_state)
-    draw_board(current_state)
-    print(f"Score: {result[0]}")
-    print(i)
     if if_terminal_state(current_state):
         break
     current_state = result[1]
     current_player = player1 if current_player == player2 else player2
+    draw_board(current_state)
+    print(result[0])
     i += 1
-    print(searched)
+
+print(searched)
