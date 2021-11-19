@@ -11,6 +11,8 @@ Legend
 0 is empty cell
 """
 
+searched = {1: 0, -1: 0}
+
 def draw_board(state):
     def c(x):
         if x == 1:
@@ -95,7 +97,8 @@ def get_random_move(state, to_move):
     return random.choice(successors)
 
 
-def alpha_beta(state, d, alpha, beta, to_move):
+def alpha_beta(state, d, alpha, beta, to_move, who_invoked):
+    global searched
     if if_terminal_state(state):
         return terminal_payoff(state)
     elif d == 0:
@@ -105,7 +108,8 @@ def alpha_beta(state, d, alpha, beta, to_move):
         maxEval = -math.inf
         next_move = None
         for u in U:
-            eval = alpha_beta(u, d - 1, alpha, beta, -1)[0]
+            eval = alpha_beta(u, d - 1, alpha, beta, -1, who_invoked)[0]
+            searched[who_invoked] += 1
             if eval > maxEval:
                 next_move = u
                 maxEval = eval
@@ -117,7 +121,8 @@ def alpha_beta(state, d, alpha, beta, to_move):
         minEval = math.inf
         next_move = None
         for u in U:
-            eval = alpha_beta(u, d - 1, alpha, beta, 1)[0]
+            eval = alpha_beta(u, d - 1, alpha, beta, 1, who_invoked)[0]
+            searched[who_invoked] += 1
             if eval < minEval:
                 minEval = eval
                 next_move = u
@@ -127,7 +132,8 @@ def alpha_beta(state, d, alpha, beta, to_move):
         return [minEval, next_move]
 
 
-def minmax(state, d, to_move):
+def minmax(state, d, to_move, who_invoked):
+    global searched
     if if_terminal_state(state):
         return terminal_payoff(state)
     elif d == 0:
@@ -137,7 +143,8 @@ def minmax(state, d, to_move):
     if to_move == 1:
         maxEval = -math.inf
         for u in U:
-            eval = minmax(u, d - 1, to_move * -1)[0]
+            eval = minmax(u, d - 1, to_move * -1, who_invoked)[0]
+            searched[who_invoked] += 1
             if eval > maxEval:
                 maxEval = eval
                 next_move = u
@@ -145,7 +152,8 @@ def minmax(state, d, to_move):
     elif to_move == -1:
         minEval = math.inf
         for u in U:
-            eval = minmax(u, d - 1, to_move * -1)[0]
+            eval = minmax(u, d - 1, to_move * -1, who_invoked)[0]
+            searched[who_invoked] += 1
             if eval < minEval:
                 minEval = eval
                 next_move = u
@@ -165,24 +173,25 @@ class Player:
             return [0, get_random_move(state, self.player)]
         else:
             if self.prune:
-                return alpha_beta(state, self.d, -math.inf, math.inf, self.player)
+                return alpha_beta(state, self.d, -math.inf, math.inf, self.player, self.player)
             else:
-                return minmax(state, self.d, self.player)
+                return minmax(state, self.d, self.player, self.player)
 
 
-player1 = Player(1, False, 5, False)
-player2 = Player(-1, False, 5, False)
+player1 = Player(1, False, 9, False)
+player2 = Player(-1, False, 9, False)
 current_state = np.array([0 for _ in range(9)])
 current_player = player1
 i = 0
 
 while True:
     result = current_player.make_move(current_state)
-    print(f"Score: {result[0]}")
     draw_board(current_state)
+    print(f"Score: {result[0]}")
     print(i)
     if if_terminal_state(current_state):
         break
     current_state = result[1]
     current_player = player1 if current_player == player2 else player2
     i += 1
+    print(searched)
