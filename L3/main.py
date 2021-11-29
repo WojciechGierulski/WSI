@@ -178,8 +178,8 @@ class Player:
                 return minmax(state, self.d, self.player, self.player)
 
 
-player1 = Player(1, True, 1, False)
-player2 = Player(-1, False, 1, False)
+player1 = Player(1, False, 1, True) # player, random, d, prune
+player2 = Player(-1, False, 1, True)
 current_state = np.array([0 for _ in range(9)])
 current_player = player1
 i = 0

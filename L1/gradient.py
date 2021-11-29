@@ -1,8 +1,8 @@
 from sympy import Symbol, lambdify
 
 X0 = 0
-MAX_IT = 50
-ALPHA = 0.05
+MAX_IT = 1000
+ALPHA = 0.02
 EPSILON = 0.01
 
 x = Symbol("x")
@@ -28,3 +28,7 @@ def gradient_descent(funct_der, x0, max_it, alpha, epsilon):
             return x_list
         i += 1
         current_x = next_x
+
+if __name__ == "__main__":
+    pts = gradient_descent(funct_der, X0, MAX_IT, ALPHA, EPSILON)
+    print(pts[-1])
