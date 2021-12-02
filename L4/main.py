@@ -1,6 +1,7 @@
+import math
+
 import pandas as pd
 from gauss import GaussFunc
-import math
 
 data = pd.read_csv("winequality-red.csv", sep=";")
 
@@ -8,17 +9,26 @@ data = pd.read_csv("winequality-red.csv", sep=";")
 class Model:
     def __init__(self, funcs, train_set):
         self.gauss_funcs = funcs
-        self.qualities_counts = {}
+        self.init_guesses = {}
         for quality in range(3, 9):
-            self.qualities_counts[quality] = train_set['quality'].value_counts()[quality]
-        self.records_count = sum([value for key, value in self.qualities_counts.items()])
+            self.init_guesses[quality] = train_set['quality'].value_counts()[quality] / len(train_set)
 
     def predict(self, row):
-        pass
+        qualities_predictions = {}
+        for quality in range(3, 9):
+            score = math.log(self.init_guesses[quality])
+            for index, value in row.iteritems():
+                if index != 'quality':
+                    probability = self.gauss_funcs[index][quality].calculate_value(value)
+                    if probability == 0.0:
+                        probability = 1e-300
+                    score += math.log(probability)
+            qualities_predictions[quality] = score
+        return max(qualities_predictions, key=qualities_predictions.get)
 
 
 def divide_train_test(data):
-    shuffled = data.sample(frac=1, random_state=200)
+    shuffled = data.sample(frac=1, random_state=101)
     train_size = int(0.6 * len(data))
     train_set = shuffled[:train_size]
     test_set = shuffled[train_size:]
@@ -26,7 +36,7 @@ def divide_train_test(data):
 
 
 def divide_cross_validation(data, k=5):
-    shuffled = data.sample(frac=1, random_state=200)
+    shuffled = data.sample(frac=1, random_state=101)
     train_sets = []
     test_sets = []
     set_size = int(1 / k * len(data))
@@ -69,6 +79,18 @@ def test_model(model, test):
     return correct / (correct + incorrect)
 
 
-train, test = divide_train_test(data)
-model = train_model(train)
-score = test_model(model, test)
+method = 'train_test'
+
+if method == 'train_test':
+    train, test = divide_train_test(data)
+    model = train_model(train)
+    score = test_model(model, test)
+    print(score)
+elif method == 'cross':
+    k = 5
+    train_sets, test_sets = divide_cross_validation(data, k)
+    for it in range(k):
+        model = train_model(train_sets[it])
+        score = test_model(model, test_sets[it])
+        print(score)
+
