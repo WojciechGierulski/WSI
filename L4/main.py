@@ -2,6 +2,7 @@ import math
 
 import pandas as pd
 from gauss import GaussFunc
+from matplotlib import pyplot as plt
 
 data = pd.read_csv("winequality-red.csv", sep=";")
 
@@ -79,7 +80,7 @@ def test_model(model, test):
     return correct / (correct + incorrect)
 
 
-method = 'train_test'
+method = 'cross'
 
 if method == 'train_test':
     train, test = divide_train_test(data)
@@ -89,8 +90,15 @@ if method == 'train_test':
 elif method == 'cross':
     k = 5
     train_sets, test_sets = divide_cross_validation(data, k)
+    scores = []
     for it in range(k):
         model = train_model(train_sets[it])
-        score = test_model(model, test_sets[it])
-        print(score)
+        scores.append(test_model(model, test_sets[it]))
+    print(scores)
+    print(sum(scores)/k)
+    plt.style.use('ggplot')
+    plt.bar([1,2,3,4,5], scores)
+    plt.ylabel('Stosunek udanych klasyfikacji do liczby klasyfikacji')
+    plt.xlabel('Nr podzbioru weryfikującego')
+    plt.show()
 
