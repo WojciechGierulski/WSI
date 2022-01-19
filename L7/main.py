@@ -2,6 +2,7 @@ import random
 from data import Nodes
 import itertools
 
+
 def process_nodes(nodes):
     bayes_net = {}
     for node in nodes:
@@ -40,6 +41,7 @@ def generate_random_sample(bayes_net):
                 sample[node["name"]] = True if prob <= table1[-1] else False
     return sample
 
+
 def get_sample_prob(sample, nodes):
     prob = 1
     # sample - dict var: bool
@@ -60,6 +62,7 @@ def get_sample_prob(sample, nodes):
                 prob *= node["prob_table"][1][1]
     return prob
 
+
 def get_all_samples_prob(nodes, options=None):
     samples = []
     if options is None:
@@ -74,9 +77,19 @@ def get_all_samples_prob(nodes, options=None):
     return samples, [get_sample_prob(sample, nodes) for sample in samples]
 
 
-
 network = process_nodes(Nodes)
 samples, probs = get_all_samples_prob(Nodes)
 
-for _ in range(1000):
-    pass
+
+samples_nr = 10000
+samples_counter = [0 for _ in range(len(probs))]
+for _ in range(samples_nr):
+    sample = generate_random_sample(network)
+    samples_counter[samples.index(sample)] += 1
+
+
+# Normalize
+samples_counter = [x/samples_nr for x in samples_counter]
+
+print(probs)
+print(samples_counter)
